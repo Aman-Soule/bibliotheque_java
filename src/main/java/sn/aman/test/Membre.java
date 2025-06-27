@@ -1,10 +1,9 @@
 package sn.aman.test;
 
+import sn.aman.config.DatabaseConnection;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
 public class Membre extends JFrame {
@@ -26,7 +25,7 @@ public class Membre extends JFrame {
     }
     private void chargerMembre() {
         try {
-            table.setModel(Fonctions.getAllMembre()); //affiche la liste des membres
+            table.setModel(DatabaseConnection.Fonctions.getAllMembre()); //affiche la liste des membres
         } catch (SQLException ex) {
             System.out.println("Erreur lors du chargement des livres: " + ex.getMessage());
         }

@@ -1,10 +1,9 @@
 package sn.aman.test;
 
+import sn.aman.config.DatabaseConnection;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
 public class Admin extends JFrame {
@@ -56,6 +55,9 @@ public class Admin extends JFrame {
 
         JButton btnActualiser3 = new JButton("Membres");
         btnActualiser3.addActionListener(e -> chargerMembres());
+        JButton btnFaireEmprunt = new JButton("Faire Emprunt");
+        btnFaireEmprunt.addActionListener(e -> faireEmpruntForm());
+        buttonPanel.add(btnFaireEmprunt);
 
 
 
@@ -72,16 +74,17 @@ public class Admin extends JFrame {
         chargerLivres();
         chargerMembres();
     }
+
     private void chargerMembres() {
         try {
-            table.setModel(Fonctions.getAllMembre());
+            table.setModel(DatabaseConnection.Fonctions.getAllMembre());
         } catch (SQLException ex) {
             showError("Erreur lors du chargement des Membres: " + ex.getMessage());
         }
     }
     private void chargerEmprunt() {
         try {
-            table.setModel(Fonctions.getEmprunt());
+            table.setModel(DatabaseConnection.Fonctions.getEmprunt());
         } catch (SQLException ex) {
             showError("Erreur lors du chargement des Emprunts: " + ex.getMessage());
         }
@@ -89,7 +92,7 @@ public class Admin extends JFrame {
 
     private void chargerLivres() {
         try {
-            table.setModel(Fonctions.getAllLivres()); //affiche la liste des livres sous forme de tableau
+            table.setModel(DatabaseConnection.Fonctions.getAllLivres()); //affiche la liste des livres sous forme de tableau
         } catch (SQLException ex) {
             showError("Erreur lors du chargement des livres: " + ex.getMessage());
         }
@@ -114,7 +117,7 @@ public class Admin extends JFrame {
             // Date de retour dans 14 jours
             String dateRetour = new java.sql.Date(System.currentTimeMillis() + (14L * 24 * 60 * 60 * 1000)).toString();
 
-            Fonctions.faireEmpruntSimple(idEmprunt, dateEmprunt, dateRetour, idLivre);
+            DatabaseConnection.Fonctions.faireEmpruntSimple(idEmprunt, dateEmprunt, dateRetour, idLivre);
 
             JOptionPane.showMessageDialog(
                     this,
@@ -161,7 +164,7 @@ public class Admin extends JFrame {
             }
 
             try {
-                Fonctions.addLivre(titre, auteur, annee);
+                DatabaseConnection.Fonctions.addLivre(titre, auteur, annee);
                 JOptionPane.showMessageDialog(this, "Livre ajouté avec succès!",
                         "Succès", JOptionPane.INFORMATION_MESSAGE);
                 chargerLivres();
@@ -220,7 +223,7 @@ public class Admin extends JFrame {
                     return;
                 }
 
-                Fonctions.updateLivre(id, nouveauTitre, nouvelAuteur, nouvelleAnnee);
+                DatabaseConnection.Fonctions.updateLivre(id, nouveauTitre, nouvelAuteur, nouvelleAnnee);
                 JOptionPane.showMessageDialog(this, "Livre modifié avec succès!",
                         "Succès", JOptionPane.INFORMATION_MESSAGE);
                 chargerLivres();
@@ -249,12 +252,65 @@ public class Admin extends JFrame {
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                Fonctions.deleteLivre(id);
+                DatabaseConnection.Fonctions.deleteLivre(id);
                 JOptionPane.showMessageDialog(this, "Livre supprimé avec succès!",
                         "Succès", JOptionPane.INFORMATION_MESSAGE);
                 chargerLivres();
             } catch (SQLException ex) {
                 showError("Erreur lors de la suppression du livre: " + ex.getMessage());
+            }
+        }
+    }
+    private void faireEmpruntForm() {
+        // Création des champs du formulaire
+        JTextField idMembreField = new JTextField();
+        JTextField idLivreField = new JTextField();
+
+        // Si un livre est sélectionné dans la table, pré-remplir son ID
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            idLivreField.setText(String.valueOf(table.getValueAt(selectedRow, 0)));
+        }
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("ID Membre:"));
+        panel.add(idMembreField);
+        panel.add(new JLabel("ID Livre:"));
+        panel.add(idLivreField);
+
+        int result = JOptionPane.showConfirmDialog(
+                this, panel, "Nouvel Emprunt",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                int idMembre = Integer.parseInt(idMembreField.getText());
+                int idLivre = Integer.parseInt(idLivreField.getText());
+
+                // Générer un ID d'emprunt
+                int idEmprunt = (int) (Math.random() * 1000) + 1;
+
+                // Dates d'emprunt et de retour
+                String dateEmprunt = new java.sql.Date(System.currentTimeMillis()).toString();
+                String dateRetour = new java.sql.Date(System.currentTimeMillis() + (14L * 24 * 60 * 60 * 1000)).toString();
+
+                // Enregistrer l'emprunt
+                DatabaseConnection.Fonctions.faireEmprunt(idEmprunt, dateEmprunt, dateRetour, idLivre, idMembre);
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Emprunt enregistré!\n" +
+                                "ID Emprunt: " + idEmprunt + "\n" +
+                                "Date retour: " + dateRetour,
+                        "Succès",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                chargerEmprunt(); // Actualiser la liste des emprunts
+
+            } catch (NumberFormatException e) {
+                showError("Veuillez entrer des IDs valides (nombres)");
+            } catch (SQLException ex) {
+                showError("Erreur lors de l'enregistrement de l'emprunt: " + ex.getMessage());
             }
         }
     }

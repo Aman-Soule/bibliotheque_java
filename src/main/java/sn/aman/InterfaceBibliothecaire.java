@@ -1,7 +1,6 @@
 package sn.aman;
 
-import sn.aman.test.Admin;
-import sn.aman.test.Fonctions;
+import sn.aman.config.DatabaseConnection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,7 +51,7 @@ public class InterfaceBibliothecaire extends JFrame {
 
     private void chargerLivres() {
         try {
-            table.setModel(Fonctions.getAllLivres());
+            table.setModel(DatabaseConnection.Fonctions.getAllLivres());
         } catch (SQLException ex) {
             showError("Erreur lors du chargement des livres: " + ex.getMessage());
         }
@@ -86,7 +85,7 @@ public class InterfaceBibliothecaire extends JFrame {
             }
 
             try {
-                Fonctions.addLivre(titre, auteur, annee);
+                DatabaseConnection.Fonctions.addLivre(titre, auteur, annee);
                 JOptionPane.showMessageDialog(this, "Livre ajouté avec succès!",
                         "Succès", JOptionPane.INFORMATION_MESSAGE);
                 chargerLivres();
@@ -145,7 +144,7 @@ public class InterfaceBibliothecaire extends JFrame {
                     return;
                 }
 
-                Fonctions.updateLivre(id, nouveauTitre, nouvelAuteur, nouvelleAnnee);
+                DatabaseConnection.Fonctions.updateLivre(id, nouveauTitre, nouvelAuteur, nouvelleAnnee);
                 JOptionPane.showMessageDialog(this, "Livre modifié avec succès!",
                         "Succès", JOptionPane.INFORMATION_MESSAGE);
                 chargerLivres();
@@ -174,7 +173,7 @@ public class InterfaceBibliothecaire extends JFrame {
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                Fonctions.deleteLivre(id);
+                DatabaseConnection.Fonctions.deleteLivre(id);
                 JOptionPane.showMessageDialog(this, "Livre supprimé avec succès!",
                         "Succès", JOptionPane.INFORMATION_MESSAGE);
                 chargerLivres();
