@@ -294,7 +294,7 @@ public class Admin extends JFrame {
                 String dateEmprunt = new java.sql.Date(System.currentTimeMillis()).toString();
                 String dateRetour = new java.sql.Date(System.currentTimeMillis() + (14L * 24 * 60 * 60 * 1000)).toString();
 
-                // Enregistrer l'emprunt
+
                 DatabaseConnection.Fonctions.faireEmprunt(idEmprunt, dateEmprunt, dateRetour, idLivre, idMembre);
 
                 JOptionPane.showMessageDialog(
