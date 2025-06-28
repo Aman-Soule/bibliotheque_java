@@ -296,7 +296,7 @@ public class Admin extends JFrame {
 
 
                 DatabaseConnection.Fonctions.faireEmprunt(idEmprunt, dateEmprunt, dateRetour, idLivre, idMembre);
-//
+
                 JOptionPane.showMessageDialog(
                         this,
                         "Emprunt enregistré!\n" +
