@@ -42,6 +42,9 @@ public class Admin extends JFrame {
         JButton btnEmprunter = new JButton("Emprunter un livre");
         btnEmprunter.addActionListener(e -> emprunterLivre());
 
+        JButton btnAjouterMembre = new JButton("Ajouter Membre");
+        btnAjouterMembre.addActionListener(e -> ajouterMembre());
+
         // Bouton Supprimer
         JButton btnSupprimer = new JButton("Supprimer");
         btnSupprimer.addActionListener(e -> supprimerLivre());
@@ -68,6 +71,7 @@ public class Admin extends JFrame {
         buttonPanel.add(btnActualiser2);
         buttonPanel.add(btnActualiser3);
         buttonPanel.add(btnEmprunter);
+        buttonPanel.add(btnAjouterMembre);
 
         add(buttonPanel, BorderLayout.SOUTH);
         chargerEmprunt();
@@ -136,6 +140,50 @@ public class Admin extends JFrame {
         }
     }
 
+    private void ajouterMembre() {
+        JTextField nomField = new JTextField();
+        JTextField prenomField = new JTextField();
+        JTextField emailField = new JTextField();
+        JTextField telField = new JTextField();
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Nom :"));
+        panel.add(nomField);
+        panel.add(new JLabel("Prenom:"));
+        panel.add(prenomField);
+        panel.add(new JLabel("Email : "));
+        panel.add(emailField);
+
+        panel.add(new JLabel("Tel : "));
+        panel.add(telField);
+
+
+        int result = JOptionPane.showConfirmDialog(
+                this, panel, "Ajouter un nouveau Membre",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String nom = nomField.getText();
+            String prenom = prenomField.getText();
+            String email = emailField.getText();
+            String tel = telField.getText();
+
+
+            if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || tel.isEmpty()) {
+                showError("Tous les champs doivent être remplis");
+                return;
+            }
+
+            try {
+                DatabaseConnection.Fonctions.addMembre(nom, prenom, email, tel);
+                JOptionPane.showMessageDialog(this, "Membre ajouté avec succès!",
+                        "Succès", JOptionPane.INFORMATION_MESSAGE);
+                chargerLivres();
+            } catch (SQLException ex) {
+                showError("Erreur lors de l'ajout du livre: " + ex.getMessage());
+            }
+        }
+    }
     private void ajouterLivre() {
         JTextField titreField = new JTextField();
         JTextField auteurField = new JTextField();

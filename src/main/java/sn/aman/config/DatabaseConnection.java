@@ -108,8 +108,41 @@ public class DatabaseConnection {
             }
         }
 
+//        public static DefaultTableModel getAllMembre() throws SQLException {
+//            String query = "SELECT idMembre, nom, prenom, email, tel, idEmpruntF  FROM membre";
+//            try (Connection conn = getConnection();
+//                 Statement stmt = conn.createStatement();
+//                 ResultSet rs = stmt.executeQuery(query)) {
+//
+//                DefaultTableModel model = new DefaultTableModel();
+//                model.addColumn("ID");
+//                model.addColumn("Nom");
+//                model.addColumn("Prenom");
+//                model.addColumn("Email");
+//                model.addColumn("Tel");
+//                model.addColumn("Emprunt");
+//
+//                while (rs.next()) {
+//                    model.addRow(new Object[]{
+//                            rs.getInt("idMembre"),
+//                            rs.getString("nom"),
+//                            rs.getString("prenom"),
+//                            rs.getString("email"),
+//                            rs.getString("tel"),
+//                            rs.getInt("idEmpruntF")
+//                    });
+//                }
+//                return model;
+//            }
+//        }
+
         public static DefaultTableModel getAllMembre() throws SQLException {
-            String query = "SELECT idMembre, nom, prenom, email, tel, idEmpruntF  FROM membre";
+            String query = "SELECT m.idMembre, m.nom, m.prenom, m.email, m.tel, m.idEmpruntF, " +
+                    "COUNT(e.idEmprunt) AS nombreEmprunts " +
+                    "FROM membre m " +
+                    "LEFT JOIN emprunt e ON m.idMembre = e.idMembreF " +
+                    "GROUP BY m.idMembre, m.nom, m.prenom, m.email, m.tel, m.idEmpruntF";
+
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(query)) {
@@ -121,6 +154,7 @@ public class DatabaseConnection {
                 model.addColumn("Email");
                 model.addColumn("Tel");
                 model.addColumn("Emprunt");
+                model.addColumn("Nombre d'emprunts");
 
                 while (rs.next()) {
                     model.addRow(new Object[]{
@@ -129,11 +163,35 @@ public class DatabaseConnection {
                             rs.getString("prenom"),
                             rs.getString("email"),
                             rs.getString("tel"),
-                            rs.getInt("idEmpruntF")
+                            rs.getInt("idEmpruntF"),
+                            rs.getInt("nombreEmprunts")
                     });
                 }
                 return model;
             }
+        }
+
+
+
+
+
+        public static void addMembre(String nom, String prenom, String email, String tel ) throws SQLException{
+
+            String query = "INSERT INTO membre (nom, prenom, email, tel) VALUES (?, ?, ?, ?)";
+
+            try (Connection conn = getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+
+                pstmt.setString(1, nom);
+                pstmt.setString(2, prenom);
+                pstmt.setString(3, email);
+                pstmt.setString(4, tel);
+
+
+                pstmt.executeUpdate();
+            }
+
         }
 
         public static void addLivre(String titre, String auteur, int annee_publication) throws SQLException {
